@@ -1,6 +1,6 @@
 Package: ICEHmeasures
 Title: The Equiplot Graph and Complex Inequality Measures
-Version: 1.0.1
+Version: 1.1.0
 Authors@R: 
     c(
       person("Leonardo", "Ferreira",, "lferreira@equidade.org", role = c("aut", "cre")),
@@ -16,9 +16,9 @@ Suggests: viridisLite
 Depends: R (>= 3.5)
 LazyData: true
 NeedsCompilation: no
-Packaged: 2026-03-06 19:30:43 UTC; Leo
+Packaged: 2026-04-16 19:58:31 UTC; Leonardo
 Author: Leonardo Ferreira [aut, cre],
   Luisa Arroyave [aut]
 Maintainer: Leonardo Ferreira <lferreira@equidade.org>
 Repository: CRAN
-Date/Publication: 2026-03-11 16:50:20 UTC
+Date/Publication: 2026-04-16 20:22:06 UTC

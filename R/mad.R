@@ -70,21 +70,43 @@ mad <- function(data,
   weight_q  <- rlang::enquo(weight_var)
   groupby_q <- rlang::enquo(groupby)
 
+  if (!rlang::as_name(outcome_q) %in% names(df)) {
+    stop("Invalid outcome var")
+  }
+
+  if (!rlang::quo_is_null(ref_q) &&
+      !rlang::as_name(ref_q) %in% names(df)) {
+    stop("Invalid reference_var")
+  }
+
+  if (!rlang::quo_is_null(weight_q) &&
+      !rlang::as_name(weight_q) %in% names(df)) {
+    stop("Invalid weight_var")
+  }
+  if (!rlang::quo_is_null(groupby_q) &&
+      !rlang::as_name(groupby_q) %in% names(df)) {
+    stop("Invalid groupby variable")
+  }
+
   df <- df %>%  dplyr::mutate(y = !!outcome_q)
   if (!rlang::quo_is_null(ref_q))  df <- df %>%  dplyr::mutate(ref = !!ref_q)
-  if (!rlang::quo_is_null(weight_q)) df <- df %>%  dplyr::mutate(w = !!weight_q)
   if (!rlang::quo_is_null(groupby_q)) df <- df %>%  dplyr::mutate(groups = !!groupby_q)
+
+  if (!is.numeric(df$y)) stop("Outcome must be numeric")
+  if (!rlang::quo_is_null(ref_q) && !is.numeric(df$ref)) stop("Reference must be numeric")
 
   # set weighting variable, weight = 1 otherwise
   if (rlang::quo_is_null(weight_q)) {
     df$w <- 1
   } else {
+    df <- df %>%  dplyr::mutate(w = !!weight_q)
+    if (!is.numeric(df$w)) stop("weight must be numeric")
     df$w <- ifelse(df$w == 0, .Machine$double.eps, df$w)
   }
 
   # Reference: from column or weighted mean
   if (rlang::quo_is_null(ref_q)) {
-    if (rlang::quo_is_null(groupby_q)) {
+    if (!rlang::quo_is_null(groupby_q)) {
       df <- df %>% dplyr::group_by(.data$groups) %>% dplyr::mutate(ref = stats::weighted.mean(.data$y, .data$w, na.rm = TRUE)) %>% dplyr::ungroup()
     } else {
       df <- df %>% dplyr::mutate(ref= stats::weighted.mean(.data$y, .data$w, na.rm = TRUE))

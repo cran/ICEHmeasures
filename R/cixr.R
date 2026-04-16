@@ -90,9 +90,22 @@ cixr <- function(data,
   weight_q  <- rlang::enquo(weight_var)
   cluster_q <- rlang::enquo(cluster_var)
 
+  if (!rlang::as_name(rank_q) %in% names(df) || !rlang::as_name(outcome_q) %in% names(df)) {
+    stop("Invalid outcome or rank var")
+  }
+
+  if (!rlang::quo_is_null(weight_q) &&
+      !rlang::as_name(weight_q) %in% names(df)) {
+    stop("Invalid weight_var")
+  }
+  if (!rlang::quo_is_null(cluster_q) &&
+      !rlang::as_name(cluster_q) %in% names(df)) {
+    stop("Invalid cluster_var")
+  }
+
   df <- df %>%  dplyr::mutate(outcome = !!outcome_q, rank = !!rank_q)
-  if (!rlang::quo_is_null(cluster_q))  df <- df %>%  dplyr::mutate(cluster = !!cluster_q)
-  if (!rlang::quo_is_null(weight_q)) df <- df %>%  dplyr::mutate(w = !!weight_q)
+
+  if (!is.numeric(df$outcome)) stop("Outcome must be numeric")
 
   df <- df %>% filter(!is.na(.data$rank), !is.na(.data$outcome))
 
@@ -103,6 +116,8 @@ cixr <- function(data,
   if (!rlang::quo_is_null(weight_q)) {
     df$weight <- 1
   } else {
+    df <- df %>%  dplyr::mutate(w = !!weight_q)
+    if (!is.numeric(df$w)) stop("weight must be numeric")
     df$weight <- ifelse(df$weight == 0, .Machine$double.eps, df$weight)
   }
 
@@ -164,6 +179,11 @@ cixr <- function(data,
     if (!rlang::quo_is_null(cluster_q)) {
       design <- survey::svydesign(ids = ~1, weights = ~weight, data = df)
     } else {
+      df <- df %>%  dplyr::mutate(cluster = !!cluster_q)
+      df$cluster <- as.factor(df$cluster)
+      if (anyNA(df$cluster)) {
+        stop("Cluster variable contains missing values.")
+      }
       design <- survey::svydesign(ids = ~cluster, weights = ~weight, data = df)
     }
 

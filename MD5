@@ -1,12 +1,12 @@
-790cf1a0e852b084c3c2da5e7bdd095e *DESCRIPTION
+545336396d0f225160c01ba835e99bd1 *DESCRIPTION
 5aad6ff7b73bf129ee67a7e5ab148f79 *LICENSE
 ae6c98c4363ac0de6c9197dc0ab52500 *NAMESPACE
-29220e632798f998f4d312dacf5677ea *R/cixr.R
+1427b37f2ae019ad088c814f4f181bb5 *R/cixr.R
 80628ff5e6140798d91f9f966407a9dd *R/equiplot.R
 92ffa406bad3db70a4bebb97d40fdcd2 *R/example_data.R
 70dca29a4036e248946e806cff6bd4b4 *R/example_data2.R
-65da401ce69d210390dd8f3a9431050d *R/mad.R
-5cdc0de7396a2c58ffd1f2c0c0ffbf4e *R/siilogit.R
+5070af8857f2be5779a34f01339815e6 *R/mad.R
+97e6b4a7279ffe775ff6d5a190743075 *R/siilogit.R
 b6db130748290317a60eb3cbc3eb6f39 *R/utils-delta.R
 a7ccb5ede0df66d43ad1fb56580486d9 *data/example_data.rda
 7cc0504e2fdee81e38e0edf5923036b5 *data/example_data2.rda
