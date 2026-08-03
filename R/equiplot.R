@@ -61,8 +61,11 @@ iceh_palette <- function(type = c("wealth", "educ", "area", "viridis"), n = NULL
 #' and facilitates the identification of inequality patterns.
 #'
 #' It supports both **long** and **wide** data formats.
-#' In the wide format, all columns except the grouping variable are assumed to be
-#' stratification variables and are automatically reshaped into long format.
+#' In the wide format, the stratifier columns to be plotted must be specified
+#' explicitly via `strat_var`, listing the columns in the order they should
+#' appear (e.g., `strat_var = c(Poorest, Q2, Q3, Q4, Richest)`, from the most
+#' disadvantaged to the most advantaged group).
+#' In the long format, `strat_var` receives the name of the stratifier column.
 #'
 #' The outcome scale is controlled through the `proportion` argument.
 #' When `proportion = TRUE`, outcomes expressed as proportions (0–1)
@@ -76,8 +79,13 @@ iceh_palette <- function(type = c("wealth", "educ", "area", "viridis"), n = NULL
 #'
 #' @param data A data.frame containing the data.
 #' @param group_var Unquoted column name for the grouping variable (y-axis).
-#' @param outcome_var Unquoted column name for the outcome variable (x-axis).
-#' @param strat_var Unquoted column name for the stratifier (color groups).
+#' @param outcome_var Unquoted column name for the outcome variable (x-axis). Required when `wide = FALSE`; ignored when `wide = TRUE`.
+#' @param strat_var Unquoted stratifier column name(s) (color groups).
+#'   When `wide = FALSE`, a single unquoted column name identifying the
+#'   stratifier variable (e.g., `strat_var = education`). When `wide = TRUE`,
+#'   one or more unquoted column names giving the stratifier columns, in the
+#'   exact order they should be plotted and colored (e.g.,
+#'   `strat_var = c(Poorest, Q2, Q3, Q4, Richest)`).
 #' @param wide Logical. If TRUE, assumes each stratum is in a separate column.
 #' @param palette "wealth", "educ", "area", or "viridis".
 #' @param order "alphabetical", "ascending", or "descending".
@@ -114,6 +122,7 @@ iceh_palette <- function(type = c("wealth", "educ", "area", "viridis"), n = NULL
 #' equiplot(
 #'   df_wealth,
 #'   country,
+#'   strat_var = c(Poorest, Q2, Q3, Q4, Richest),
 #'   wide = TRUE,
 #'   palette = "wealth",
 #'   order = "descending",
@@ -160,6 +169,7 @@ iceh_palette <- function(type = c("wealth", "educ", "area", "viridis"), n = NULL
 #' equiplot(
 #'   df_area,
 #'   region,
+#'   strat_var = c(Rural, Urban),
 #'   wide = TRUE,
 #'   palette = "area",
 #'   order = "ascending",
@@ -170,6 +180,7 @@ iceh_palette <- function(type = c("wealth", "educ", "area", "viridis"), n = NULL
 #'
 #' @importFrom dplyr where
 #' @importFrom rlang .data
+#' @importFrom tidyselect eval_select
 #'
 #' @export
 #'
@@ -198,16 +209,30 @@ equiplot <- function(
   # -------------------------
   if (wide) {
 
+    strat_quo <- rlang::enquo(strat_var)
+
+    if (rlang::quo_is_null(strat_quo)) {
+      stop("When wide = TRUE, 'strat_var' is required: provide the ",
+           "stratifier columns in the order they should be plotted, e.g. ",
+           "strat_var = c(Poorest, Q2, Q3, Q4, Richest).")
+    }
+
+    strat_pos  <- tidyselect::eval_select(strat_quo, data = data)
+    strat_vars <- names(strat_pos)
+
     group_col <- rlang::ensym(group_var)
 
     data_plot <- data %>%
-      dplyr::select(!!group_col, dplyr::where(is.numeric)) %>%
+      dplyr::select(!!group_col, dplyr::all_of(strat_vars)) %>%
       tidyr::pivot_longer(
         cols = -!!group_col,
         names_to = "str_internal",
         values_to = "out_internal"
       ) %>%
       dplyr::rename(grp_internal = !!group_col)
+
+    # preserve the user-specified plotting order (no alphabetical default)
+    data_plot$str_internal <- factor(data_plot$str_internal, levels = strat_vars)
 
   } else {
 

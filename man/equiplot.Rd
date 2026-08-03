@@ -27,9 +27,14 @@ equiplot(
 
 \item{group_var}{Unquoted column name for the grouping variable (y-axis).}
 
-\item{outcome_var}{Unquoted column name for the outcome variable (x-axis).}
+\item{outcome_var}{Unquoted column name for the outcome variable (x-axis). Required when \code{wide = FALSE}; ignored when \code{wide = TRUE}.}
 
-\item{strat_var}{Unquoted column name for the stratifier (color groups).}
+\item{strat_var}{Unquoted stratifier column name(s) (color groups).
+When \code{wide = FALSE}, a single unquoted column name identifying the
+stratifier variable (e.g., \code{strat_var = education}). When \code{wide = TRUE},
+one or more unquoted column names giving the stratifier columns, in the
+exact order they should be plotted and colored (e.g.,
+\code{strat_var = c(Poorest, Q2, Q3, Q4, Richest)}).}
 
 \item{wide}{Logical. If TRUE, assumes each stratum is in a separate column.}
 
@@ -72,8 +77,11 @@ It provides a clear visual representation of absolute differences between subgro
 and facilitates the identification of inequality patterns.
 
 It supports both \strong{long} and \strong{wide} data formats.
-In the wide format, all columns except the grouping variable are assumed to be
-stratification variables and are automatically reshaped into long format.
+In the wide format, the stratifier columns to be plotted must be specified
+explicitly via \code{strat_var}, listing the columns in the order they should
+appear (e.g., \code{strat_var = c(Poorest, Q2, Q3, Q4, Richest)}, from the most
+disadvantaged to the most advantaged group).
+In the long format, \code{strat_var} receives the name of the stratifier column.
 
 The outcome scale is controlled through the \code{proportion} argument.
 When \code{proportion = TRUE}, outcomes expressed as proportions (0–1)
@@ -103,6 +111,7 @@ df_wealth <- data.frame(
 equiplot(
   df_wealth,
   country,
+  strat_var = c(Poorest, Q2, Q3, Q4, Richest),
   wide = TRUE,
   palette = "wealth",
   order = "descending",
@@ -149,6 +158,7 @@ df_area <- data.frame(
 equiplot(
   df_area,
   region,
+  strat_var = c(Rural, Urban),
   wide = TRUE,
   palette = "area",
   order = "ascending",

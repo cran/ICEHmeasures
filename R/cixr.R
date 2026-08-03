@@ -113,11 +113,11 @@ cixr <- function(data,
   if (any(df$outcome < 0, na.rm = TRUE)) stop("Outcome must be non-negative.")
 
   # default weight
-  if (!rlang::quo_is_null(weight_q)) {
+  if (rlang::quo_is_null(weight_q)) {
     df$weight <- 1
   } else {
-    df <- df %>%  dplyr::mutate(w = !!weight_q)
-    if (!is.numeric(df$w)) stop("weight must be numeric")
+    df <- df %>%  dplyr::mutate(weight = !!weight_q)
+    if (!is.numeric(df$weight)) stop("weight must be numeric")
     df$weight <- ifelse(df$weight == 0, .Machine$double.eps, df$weight)
   }
 
@@ -176,7 +176,7 @@ cixr <- function(data,
                         rank_rel = .data$cumwi - 0.5 * .data$wi)
 
 
-    if (!rlang::quo_is_null(cluster_q)) {
+    if (rlang::quo_is_null(cluster_q)) {
       design <- survey::svydesign(ids = ~1, weights = ~weight, data = df)
     } else {
       df <- df %>%  dplyr::mutate(cluster = !!cluster_q)

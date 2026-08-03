@@ -101,6 +101,7 @@ siilogit <- function(data,
   df <- df %>% filter(!is.na(.data$rank), !is.na(.data$y))
   if (nrow(df) == 0) stop("No observations after removing missing values.")
 
+  if (any(df$y > 1 | df$y < 0))  stop("Outcome is outside the 0-1 interval.")
   # replace extreme values to prevent convergence issues
   df$y <- pmin(pmax(df$y, 0.01), 0.99)
 
